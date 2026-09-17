@@ -12,7 +12,7 @@ async def custom_site():
     appdir = Path('/data/data/snake-fever')
     appdir.mkdir(exist_ok=True)
     window.infobox.innerText = 'LOADING SNAKE FEVER'
-    async with platform.fopen('snake-fever.tar.gz', 'rb') as archive:
+    async with platform.fopen('7a110a13af42-snake-fever.tar.gz', 'rb') as archive:
         with tarfile.open(fileobj=archive, mode='r:gz') as tar:
             tar.extractall(path=appdir.as_posix(), filter='tar')
     platform.run_main(PyConfig, loaderhome=appdir / 'assets', loadermain=None)
@@ -38,10 +38,13 @@ asyncio.run(custom_site())
 # =============================================================================
 # --></script><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14171a">
 <title>Snake Fever</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="3ac284d2b977-mobile.css">
+<script src="3411692820cb-lucide.min.js" defer></script>
+<script src="797eba53601f-mobile.js" defer></script>
 <style>
 * { box-sizing: border-box; }
 html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#14171a; }
@@ -73,7 +76,9 @@ function frame_online() {}
 window.addEventListener('keydown', event => {
     if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.code)) event.preventDefault();
 });
-window.addEventListener('pointerdown', () => document.getElementById('canvas').focus());
+window.addEventListener('pointerdown', event => {
+    if (event.target.id === 'canvas' || event.target.id === 'infobox') document.getElementById('canvas').focus();
+});
 window.addEventListener('error', () => {
     if (!globalThis.snakeFeverReady) document.getElementById('infobox').innerText = 'LOAD ERROR - PLEASE RELOAD';
 });
@@ -81,7 +86,45 @@ window.addEventListener('error', () => {
 </head><body>
 <div id="infobox" role="status" aria-live="polite">LOADING SNAKE FEVER</div>
 <div id="transfer" hidden><div id="status"></div><progress id="progress" max="100" value="0"></progress></div>
+<main id="game-shell">
+<header id="mobile-hud" class="touch-ui">
+    <div class="brand">SNAKE<br><span>FEVER</span></div>
+    <div class="scores"><span>SCORE <strong id="score">0</strong></span><span>BEST <strong id="best">0</strong></span></div>
+    <button data-action="pause" class="icon" id="pause-button" aria-label="Pause" title="Pause"><i data-lucide="pause"></i></button>
+    <button data-action="settings" class="icon" aria-label="Settings" title="Settings"><i data-lucide="settings"></i></button>
+</header>
+<div id="board-stage">
 <canvas class="emscripten" id="canvas" width="960" height="800" tabindex="0" aria-label="Snake Fever game" oncontextmenu="event.preventDefault()"></canvas>
+<div id="round-overlay" class="touch-ui" hidden>
+    <h1 id="round-title">READY?</h1><p id="round-score" hidden></p>
+    <button data-action="start" id="start-button">PLAY</button>
+    <button data-action="restart" id="restart-button" hidden>RESTART</button>
+</div>
+</div>
+<section id="fever-hud" class="touch-ui" aria-label="Fever status">
+    <div><span id="fever-label">READY</span><span id="fever-time"></span></div>
+    <div id="fever-meter" role="progressbar" aria-label="Fever charge" aria-valuemin="0" aria-valuemax="100"><div id="fever-fill"></div></div>
+</section>
+<nav id="touch-controls" class="touch-ui" aria-label="Game controls">
+    <div id="dpad">
+        <button data-direction="UP" class="up" aria-label="Up" title="Up"><i data-lucide="arrow-up"></i></button>
+        <button data-direction="LEFT" class="left" aria-label="Left" title="Left"><i data-lucide="arrow-left"></i></button>
+        <button data-direction="DOWN" class="down" aria-label="Down" title="Down"><i data-lucide="arrow-down"></i></button>
+        <button data-direction="RIGHT" class="right" aria-label="Right" title="Right"><i data-lucide="arrow-right"></i></button>
+    </div>
+    <button data-action="fever" id="fever-button"><i data-lucide="zap"></i><span>FEVER</span></button>
+</nav>
+</main>
+<button id="touch-toggle" class="icon" aria-label="Toggle touch controls" title="Touch controls"><i data-lucide="gamepad-2"></i></button>
+<dialog id="mobile-settings" aria-labelledby="settings-title">
+    <form method="dialog"><h2 id="settings-title">SETTINGS</h2>
+    <label for="music-range">MUSIC</label><input id="music-range" type="range" min="0" max="1" step="0.01" data-setting="music">
+    <label for="effects-range">SOUND FX</label><input id="effects-range" type="range" min="0" max="1" step="0.01" data-setting="effects">
+    <label class="check"><input type="checkbox" data-setting="reduced_motion"> Reduced motion</label>
+    <label class="check"><input type="checkbox" data-setting="assist"> Turn assist</label>
+    <label class="check"><input type="checkbox" id="left-handed"> Swap controls</label>
+    <button type="button" data-action="close_settings">DONE</button></form>
+</dialog>
 <div id="html"></div>
 <div id="crt" hidden><div id="system" hidden></div><div id="box" hidden><div id="info"></div><iframe id="iframe" title="Runtime" hidden></iframe></div></div>
 <div id="dlg" hidden><input id="dlg_multifile" type="file" multiple></div>
