@@ -12,7 +12,7 @@ async def custom_site():
     appdir = Path('/data/data/snake-fever')
     appdir.mkdir(exist_ok=True)
     window.infobox.innerText = 'LOADING SNAKE FEVER'
-    async with platform.fopen('781712501e37-snake-fever.tar.gz', 'rb') as archive:
+    async with platform.fopen('228e36fa7d17-snake-fever.tar.gz', 'rb') as archive:
         with tarfile.open(fileobj=archive, mode='r:gz') as tar:
             tar.extractall(path=appdir.as_posix(), filter='tar')
     platform.run_main(PyConfig, loaderhome=appdir / 'assets', loadermain=None)
