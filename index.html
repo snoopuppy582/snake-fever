@@ -12,7 +12,7 @@ async def custom_site():
     appdir = Path('/data/data/snake-fever')
     appdir.mkdir(exist_ok=True)
     window.infobox.innerText = 'LOADING SNAKE FEVER'
-    async with platform.fopen('a666016f4bb8-snake-fever.tar.gz', 'rb') as archive:
+    async with platform.fopen('0892c611b3d8-snake-fever.tar.gz', 'rb') as archive:
         with tarfile.open(fileobj=archive, mode='r:gz') as tar:
             tar.extractall(path=appdir.as_posix(), filter='tar')
     platform.run_main(PyConfig, loaderhome=appdir / 'assets', loadermain=None)
@@ -42,9 +42,9 @@ asyncio.run(custom_site())
 <meta name="theme-color" content="#14171a">
 <title>Snake Fever</title>
 <link rel="icon" type="image/png" href="favicon.png">
-<link rel="stylesheet" href="983f9ba712ec-mobile.css">
+<link rel="stylesheet" href="505363139653-mobile.css">
 <script src="3411692820cb-lucide.min.js" defer></script>
-<script src="31c0dde1dda0-mobile.js" defer></script>
+<script src="dbe84cc935b3-mobile.js" defer></script>
 <style>
 * { box-sizing: border-box; }
 html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#14171a; }
@@ -102,7 +102,7 @@ window.addEventListener('error', () => {
 </div>
 </div>
 <section id="fever-hud" class="touch-ui" aria-label="Fever status">
-    <div><span id="fever-label">READY</span><span id="fever-time"></span></div>
+    <div><span id="fever-label">FEVER READY</span><span id="fever-time"></span></div>
     <div id="fever-meter" role="progressbar" aria-label="Fever charge" aria-valuemin="0" aria-valuemax="100"><div id="fever-fill"></div></div>
 </section>
 <nav id="touch-controls" class="touch-ui" aria-label="Game controls">
