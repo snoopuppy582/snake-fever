@@ -12,7 +12,7 @@ async def custom_site():
     appdir = Path('/data/data/snake-fever')
     appdir.mkdir(exist_ok=True)
     window.infobox.innerText = 'LOADING SNAKE FEVER'
-    async with platform.fopen('6a2d1a941839-snake-fever.tar.gz', 'rb') as archive:
+    async with platform.fopen('abd981511a14-snake-fever.tar.gz', 'rb') as archive:
         with tarfile.open(fileobj=archive, mode='r:gz') as tar:
             tar.extractall(path=appdir.as_posix(), filter='tar')
     platform.run_main(PyConfig, loaderhome=appdir / 'assets', loadermain=None)
@@ -39,21 +39,21 @@ asyncio.run(custom_site())
 # --></script><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#14171a">
+<meta name="theme-color" content="#182123">
 <title>Snake Fever</title>
 <link rel="icon" type="image/png" href="favicon.png">
-<link rel="stylesheet" href="5e9c92e6ad04-mobile.css">
+<link rel="stylesheet" href="38cd64a06e6b-mobile.css">
 <script src="3411692820cb-lucide.min.js" defer></script>
 <script src="e148bb22c562-mobile.js" defer></script>
 <style>
 * { box-sizing: border-box; }
-html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#14171a; }
-body { display:grid; place-items:center; color:#eef3ef; font-family:monospace; }
+html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#182123; }
+body { display:grid; place-items:center; color:#eef2ec; font-family:monospace; }
 canvas.emscripten { border:0; padding:0; margin:auto; position:absolute; inset:0;
     width:min(100vw, 120vh)!important; height:min(100vh, 83.333333vw)!important;
     image-rendering:pixelated; outline:none; }
 #infobox { position:fixed; inset:0; display:grid; place-items:center; text-align:center;
-    background:#14171a; color:#6eeb97; font:bold 18px monospace; z-index:10; cursor:pointer; }
+    background:#182123; color:#67ac80; font:bold 18px monospace; z-index:10; cursor:pointer; }
 #transfer, #crt, #pyconsole, #dlg, #html { display:none!important; }
 </style>
 <script>
