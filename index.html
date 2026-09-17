@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en"><script src="https://pygame-web.github.io/cdn/0.9.3/pythons.js" type="module" id="site" data-python="python3.12" data-LINES="42" data-COLUMNS="132" data-os="vtx,snd,gui" async defer>#<!--
+import sys
+import asyncio
+import platform
+from pathlib import Path
+
+async def custom_site():
+    import embed
+    import tarfile
+    window = platform.window
+    appdir = Path('/data/data/snake-fever')
+    appdir.mkdir(exist_ok=True)
+    window.infobox.innerText = 'LOADING SNAKE FEVER'
+    async with platform.fopen('snake-fever.tar.gz', 'rb') as archive:
+        with tarfile.open(fileobj=archive, mode='r:gz') as tar:
+            tar.extractall(path=appdir.as_posix(), filter='tar')
+    platform.run_main(PyConfig, loaderhome=appdir / 'assets', loadermain=None)
+    while embed.counter() < 0:
+        await asyncio.sleep(.1)
+    main = appdir / 'assets' / 'main.py'
+    __import__(__name__).__file__ = main
+    if not window.MM.UME:
+        window.infobox.innerText = 'CLICK TO START'
+        while not window.MM.UME:
+            await asyncio.sleep(.1)
+    await TopLevel_async_handler.start_toplevel(platform.shell, console=False)
+    def ui_callback(pkg):
+        window.infobox.innerText = 'LOADING SNAKE FEVER'
+    await shell.source(main, callback=ui_callback)
+    window.infobox.style.display = 'none'
+    window.transfer.hidden = True
+    window.canvas.style.visibility = 'visible'
+    window.window_resize()
+
+asyncio.run(custom_site())
+# BEGIN BLOCK
+# =============================================================================
+# --></script><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14171a">
+<title>Snake Fever</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+* { box-sizing: border-box; }
+html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#14171a; }
+body { display:grid; place-items:center; color:#eef3ef; font-family:monospace; }
+canvas.emscripten { border:0; padding:0; margin:auto; position:absolute; inset:0;
+    width:min(100vw, 120vh)!important; height:min(100vh, 83.333333vw)!important;
+    image-rendering:pixelated; outline:none; }
+#infobox { position:fixed; inset:0; display:grid; place-items:center; text-align:center;
+    background:#14171a; color:#6eeb97; font:bold 18px monospace; z-index:10; cursor:pointer; }
+#transfer, #crt, #pyconsole, #dlg, #html { display:none!important; }
+</style>
+<script>
+// END BLOCK
+var config = {
+    xtermjs:"1", _sdl2:"canvas", user_canvas:0,
+    user_canvas_managed:0, gui_divider:1, ume_block:1, can_close:0,
+    archive:"snake-fever", gui_debug:0, cdn:"https://pygame-web.github.io/cdn/0.9.3/",
+    autorun:0, PYBUILD:"3.12", fb_ar:1.2, fb_width:960, fb_height:800
+};
+globalThis.snakeFeverReady = false;
+globalThis.__canvas_resized = () => {};
+async function custom_onload() {}
+function custom_prerun() {}
+function custom_postrun() {}
+function show_infobox() {}
+function info_inline() {}
+function info_online() {}
+function frame_online() {}
+window.addEventListener('keydown', event => {
+    if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.code)) event.preventDefault();
+});
+window.addEventListener('pointerdown', () => document.getElementById('canvas').focus());
+window.addEventListener('error', () => {
+    if (!globalThis.snakeFeverReady) document.getElementById('infobox').innerText = 'LOAD ERROR - PLEASE RELOAD';
+});
+</script>
+</head><body>
+<div id="infobox" role="status" aria-live="polite">LOADING SNAKE FEVER</div>
+<div id="transfer" hidden><div id="status"></div><progress id="progress" max="100" value="0"></progress></div>
+<canvas class="emscripten" id="canvas" width="960" height="800" tabindex="0" aria-label="Snake Fever game" oncontextmenu="event.preventDefault()"></canvas>
+<div id="html"></div>
+<div id="crt" hidden><div id="system" hidden></div><div id="box" hidden><div id="info"></div><iframe id="iframe" title="Runtime" hidden></iframe></div></div>
+<div id="dlg" hidden><input id="dlg_multifile" type="file" multiple></div>
+<div id="pyconsole" hidden><div id="terminal"></div></div>
+</body></html>
