@@ -11,8 +11,8 @@ async def custom_site():
     window = platform.window
     appdir = Path('/data/data/snake-fever')
     appdir.mkdir(exist_ok=True)
-    window.infobox.innerText = 'LOADING SNAKE FEVER'
-    async with platform.fopen('b22c23589cc2-snake-fever.tar.gz', 'rb') as archive:
+    window.sfSetLoading('LOADING SNAKE FEVER', 'loading')
+    async with platform.fopen('1c5fc33b005f-snake-fever.tar.gz', 'rb') as archive:
         with tarfile.open(fileobj=archive, mode='r:gz') as tar:
             tar.extractall(path=appdir.as_posix(), filter='tar')
     platform.run_main(PyConfig, loaderhome=appdir / 'assets', loadermain=None)
@@ -21,14 +21,15 @@ async def custom_site():
     main = appdir / 'assets' / 'main.py'
     __import__(__name__).__file__ = main
     if not window.sfStartRequested:
-        window.infobox.innerText = 'CLICK TO START'
+        window.sfSetLoading('CLICK TO START', 'ready')
         while not window.sfStartRequested:
             await asyncio.sleep(.025)
     await TopLevel_async_handler.start_toplevel(platform.shell, console=False)
     def ui_callback(pkg):
-        window.infobox.innerText = 'LOADING SNAKE FEVER'
+        window.sfSetLoading('LOADING SNAKE FEVER', 'loading')
     await shell.source(main, callback=ui_callback)
     window.infobox.style.display = 'none'
+    window.sfStopLoading()
     window.transfer.hidden = True
     window.canvas.style.visibility = 'visible'
     window.window_resize()
@@ -42,9 +43,11 @@ asyncio.run(custom_site())
 <meta name="theme-color" content="#182123">
 <title>Snake Fever</title>
 <link rel="icon" type="image/png" href="favicon.png">
-<link rel="stylesheet" href="52c2a390f79d-mobile.css">
+<link rel="stylesheet" href="a06f19d6b5fa-mobile.css">
+<script src="67d7d54240bd-loader.js" defer></script>
+<script src="052e6b3ca423-stick.js" defer></script>
 <script src="3411692820cb-lucide.min.js" defer></script>
-<script src="e148bb22c562-mobile.js" defer></script>
+<script src="3e1382ef956b-mobile.js" defer></script>
 <style>
 * { box-sizing: border-box; }
 html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#182123; }
@@ -66,18 +69,29 @@ var config = {
 };
 globalThis.snakeFeverReady = false;
 globalThis.sfStartRequested = false;
+globalThis.sfSetLoading = (text, phase) => {
+    const box = document.getElementById('infobox');
+    const status = document.getElementById('loading-status');
+    if (!box || !status) return;
+    status.textContent = text;
+    box.dataset.phase = phase;
+};
+globalThis.sfStopLoading = () => {
+    document.getElementById('infobox').classList.add('finished');
+};
 // A trusted start gesture is independent of the runtime's audio autoplay probe.
 function requestStart(event) {
     if (!event.isTrusted || globalThis.sfStartRequested || globalThis.snakeFeverReady) return;
+    if (event.target.closest?.('#loading-retry')) return;
     if (event.type === 'keydown') {
         if (!['Enter', 'Space'].includes(event.code) || event.repeat) return;
         event.preventDefault();
     } else {
-        if (event.target.id !== 'infobox') return;
+        if (!event.target.closest?.('#infobox') || event.target.closest('#loading-retry')) return;
         if (event.type === 'pointerup' && event.button !== 0) return;
     }
     globalThis.sfStartRequested = true;
-    document.getElementById('infobox').innerText = 'LOADING SNAKE FEVER';
+    globalThis.sfSetLoading('LOADING SNAKE FEVER', 'loading');
     for (const type of ['pointerup', 'touchend', 'click', 'keydown']) {
         window.removeEventListener(type, requestStart, true);
     }
@@ -97,14 +111,26 @@ window.addEventListener('keydown', event => {
     if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.code)) event.preventDefault();
 });
 window.addEventListener('pointerdown', event => {
-    if (event.target.id === 'canvas' || event.target.id === 'infobox') document.getElementById('canvas').focus();
+    if (event.target.closest?.('#loading-retry')) return;
+    if (event.target.id === 'canvas' || event.target.closest?.('#infobox')) document.getElementById('canvas').focus();
 });
 window.addEventListener('error', () => {
-    if (!globalThis.snakeFeverReady) document.getElementById('infobox').innerText = 'LOAD ERROR - PLEASE RELOAD';
+    if (!globalThis.snakeFeverReady) globalThis.sfSetLoading('LOAD ERROR', 'error');
 });
 </script>
 </head><body>
-<div id="infobox" role="button" tabindex="0" aria-live="polite">LOADING SNAKE FEVER</div>
+<div id="infobox" role="button" tabindex="0" data-phase="loading" aria-label="Start Snake Fever">
+    <div class="loading-scene">
+        <div class="loading-brand">SNAKE <span>FEVER</span></div>
+        <div class="loading-orbit" aria-hidden="true">
+            <div class="loading-track"></div><div id="loading-snake"></div>
+            <img class="loading-apple" src="5fe4dfcd5fa9-loader-apple.png" alt="" width="24" height="24">
+            <span class="loading-burst">+</span>
+        </div>
+        <div id="loading-status" role="status" aria-live="polite">LOADING SNAKE FEVER</div>
+        <button id="loading-retry" type="button" hidden aria-label="Reload game"><i data-lucide="rotate-cw"></i></button>
+    </div>
+</div>
 <div id="transfer" hidden><div id="status"></div><progress id="progress" max="100" value="0"></progress></div>
 <main id="game-shell">
 <header id="mobile-hud" class="touch-ui">
@@ -126,12 +152,20 @@ window.addEventListener('error', () => {
     <div id="fever-meter" role="progressbar" aria-label="Fever charge" aria-valuemin="0" aria-valuemax="100"><div id="fever-fill"></div></div>
 </section>
 <nav id="touch-controls" class="touch-ui" aria-label="Game controls">
-    <div id="dpad">
+<div id="direction-control">
+<div id="stick" role="group" tabindex="0" aria-label="Direction stick" aria-disabled="true">
+    <div class="stick-ring" aria-hidden="true"></div>
+    <i class="stick-up" data-lucide="chevron-up"></i><i class="stick-down" data-lucide="chevron-down"></i>
+    <i class="stick-left" data-lucide="chevron-left"></i><i class="stick-right" data-lucide="chevron-right"></i>
+    <div id="stick-knob" aria-hidden="true"></div>
+</div>
+<div id="dpad">
         <button data-direction="UP" class="up" aria-label="Up" title="Up"><i data-lucide="arrow-up"></i></button>
         <button data-direction="LEFT" class="left" aria-label="Left" title="Left"><i data-lucide="arrow-left"></i></button>
         <button data-direction="DOWN" class="down" aria-label="Down" title="Down"><i data-lucide="arrow-down"></i></button>
         <button data-direction="RIGHT" class="right" aria-label="Right" title="Right"><i data-lucide="arrow-right"></i></button>
     </div>
+</div>
     <button data-action="fever" id="fever-button"><i data-lucide="zap"></i><span>FEVER</span></button>
 </nav>
 </main>
@@ -142,6 +176,10 @@ window.addEventListener('error', () => {
     <div class="audio-setting"><label for="music-range">MUSIC</label><input id="music-range" type="range" min="0" max="1" step="0.01" data-setting="music"></div>
     <div class="audio-setting"><label for="effects-range">SOUND FX</label><input id="effects-range" type="range" min="0" max="1" step="0.01" data-setting="effects"></div>
     </div><div class="option-settings">
+    <fieldset class="control-options"><legend>CONTROLS</legend><div>
+        <label><input type="radio" name="control-mode" value="stick" checked><span><i data-lucide="joystick"></i>STICK</span></label>
+        <label><input type="radio" name="control-mode" value="buttons"><span><i data-lucide="gamepad-2"></i>BUTTONS</span></label>
+    </div></fieldset>
     <label class="check"><input type="checkbox" data-setting="reduced_motion"> Reduced motion</label>
     <label class="check"><input type="checkbox" data-setting="assist"> Turn assist</label>
     <label class="check"><input type="checkbox" data-setting="show_fps"> Show FPS</label>
