@@ -12,7 +12,7 @@ async def custom_site():
     appdir = Path('/data/data/snake-fever')
     appdir.mkdir(exist_ok=True)
     window.infobox.innerText = 'LOADING SNAKE FEVER'
-    async with platform.fopen('228e36fa7d17-snake-fever.tar.gz', 'rb') as archive:
+    async with platform.fopen('adb79aa949b7-snake-fever.tar.gz', 'rb') as archive:
         with tarfile.open(fileobj=archive, mode='r:gz') as tar:
             tar.extractall(path=appdir.as_posix(), filter='tar')
     platform.run_main(PyConfig, loaderhome=appdir / 'assets', loadermain=None)
@@ -20,10 +20,10 @@ async def custom_site():
         await asyncio.sleep(.1)
     main = appdir / 'assets' / 'main.py'
     __import__(__name__).__file__ = main
-    if not window.MM.UME:
+    if not window.sfStartRequested:
         window.infobox.innerText = 'CLICK TO START'
-        while not window.MM.UME:
-            await asyncio.sleep(.1)
+        while not window.sfStartRequested:
+            await asyncio.sleep(.025)
     await TopLevel_async_handler.start_toplevel(platform.shell, console=False)
     def ui_callback(pkg):
         window.infobox.innerText = 'LOADING SNAKE FEVER'
@@ -53,18 +53,38 @@ canvas.emscripten { border:0; padding:0; margin:auto; position:absolute; inset:0
     width:min(100vw, 126.315789vh)!important; height:min(100vh, 79.166667vw)!important;
     image-rendering:pixelated; outline:none; }
 #infobox { position:fixed; inset:0; display:grid; place-items:center; text-align:center;
-    background:#182123; color:#67ac80; font:bold 18px monospace; z-index:10; cursor:pointer; }
+    background:#182123; color:#67ac80; font:bold 18px monospace; z-index:10; cursor:pointer; touch-action:manipulation; }
 #transfer, #crt, #pyconsole, #dlg, #html { display:none!important; }
 </style>
 <script>
 // END BLOCK
 var config = {
     xtermjs:"1", _sdl2:"canvas", user_canvas:0,
-    user_canvas_managed:0, gui_divider:1, ume_block:1, can_close:0,
+    user_canvas_managed:0, gui_divider:1, ume_block:0, can_close:0,
     archive:"snake-fever", gui_debug:0, cdn:"https://pygame-web.github.io/cdn/0.9.3/",
     autorun:0, PYBUILD:"3.12", fb_ar:1.26315789, fb_width:960, fb_height:760
 };
 globalThis.snakeFeverReady = false;
+globalThis.sfStartRequested = false;
+// A trusted start gesture is independent of the runtime's audio autoplay probe.
+function requestStart(event) {
+    if (!event.isTrusted || globalThis.sfStartRequested || globalThis.snakeFeverReady) return;
+    if (event.type === 'keydown') {
+        if (!['Enter', 'Space'].includes(event.code) || event.repeat) return;
+        event.preventDefault();
+    } else {
+        if (event.target.id !== 'infobox') return;
+        if (event.type === 'pointerup' && event.button !== 0) return;
+    }
+    globalThis.sfStartRequested = true;
+    document.getElementById('infobox').innerText = 'LOADING SNAKE FEVER';
+    for (const type of ['pointerup', 'touchend', 'click', 'keydown']) {
+        window.removeEventListener(type, requestStart, true);
+    }
+}
+for (const type of ['pointerup', 'touchend', 'click', 'keydown']) {
+    window.addEventListener(type, requestStart, {capture:true, passive:type !== 'keydown'});
+}
 globalThis.__canvas_resized = () => {};
 async function custom_onload() {}
 function custom_prerun() {}
@@ -84,7 +104,7 @@ window.addEventListener('error', () => {
 });
 </script>
 </head><body>
-<div id="infobox" role="status" aria-live="polite">LOADING SNAKE FEVER</div>
+<div id="infobox" role="button" tabindex="0" aria-live="polite">LOADING SNAKE FEVER</div>
 <div id="transfer" hidden><div id="status"></div><progress id="progress" max="100" value="0"></progress></div>
 <main id="game-shell">
 <header id="mobile-hud" class="touch-ui">
